@@ -112,6 +112,9 @@ class PipelineQwenService(OpenAIService):
         # 获取连接【主 LLM (Qwen3)】的客户端
         main_client = self.get_client()
 
+        logger.info(f"Calling main LLM with model: {self.openai_model}")
+        logger.info(f"Prompt length: {len(prompt)} characters")
+        
         # =================================================
         # 第一阶段：视觉处理 (如果存在图片)
         # =================================================
@@ -123,11 +126,14 @@ class PipelineQwenService(OpenAIService):
                 images_list = image
             
             vision_context = self.run_vision_model_locally(images_list)
+            logger.info(f"Vision context generated: {vision_context[:500]}") 
 
         # =================================================
         # 第二阶段：Prompt 组装
         # =================================================
         final_prompt = prompt
+
+        logger.info(f"Final prompt length: {len(final_prompt)} characters")
         
         if vision_context:
             final_prompt = (
@@ -138,6 +144,7 @@ class PipelineQwenService(OpenAIService):
                 f"--- END CONTEXT ---\n"
                 f"Use the context above to fulfill the original request."
             )
+
 
         # =================================================
         # 第三阶段：构造纯文本请求
@@ -164,6 +171,7 @@ class PipelineQwenService(OpenAIService):
                     timeout=timeout,
                     response_format=response_schema,
                 )
+                logger.info(f"LLM call succeeded: response received")
                 
                 response_text = response.choices[0].message.content
                 
