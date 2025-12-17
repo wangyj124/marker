@@ -23,32 +23,28 @@ class PipelineQwenService(OpenAIService):
     
     逻辑：
     1. 拦截 Marker 传入的图片。
-    2. 使用【本地 Vision 模型】(如 Qwen-VL) 识别图片内容，转化为文字。
+    2. 使用【本地 Vision 模型】(Qwen-VL) 识别图片内容，转化为文字。
     3. 将识别到的文字拼接到 Prompt 中。
-    4. 将纯文本请求发送给【主 LLM】(如 Qwen3-32B)。
+    4. 将纯文本请求发送给【主 LLM】(Qwen3-32B)。
     """
 
     # =========================================================
     # 配置区域：按照 Marker 的方式定义为类属性
     # 这些属性可以通过命令行参数 --vision_base_url 等传入
     # =========================================================
-    vision_base_url:  Annotated[
-        str, "The base url for the vision model (e.g., LM Studio)."
+    PipelineQwenService_vision_base_url: Annotated[
+        str, "The base url for the vision model"
     ] = "http://10.8.2.63:12345"
-    
-    vision_api_key: Annotated[
-        str, "The API key for the vision model service."
-    ] = "lm-studio"  # LM Studio 默认不需要真实 key
-    
-    vision_model_name: Annotated[
-        str, "The model name for the vision model."
+
+    PipelineQwenService_vision_model_name: Annotated[
+        str, "The model name for the vision model"
     ] = "qwen3-vl-8b-instruct"
 
     def get_vision_client(self) -> OpenAI:
         """获取视觉模型客户端"""
         return OpenAI(
-            base_url=self.vision_base_url,
-            api_key=self. vision_api_key
+            base_url=self.PipelineQwenService_vision_base_url,
+            api_key=self.vision_api_key  # 默认直接使用父类的 API key
         )
 
     def run_vision_model_locally(self, images: List[Image.Image]) -> str:
