@@ -32,19 +32,15 @@ class PipelineQwenService(OpenAIService):
     # 配置区域：按照 Marker 的方式定义为类属性
     # 这些属性可以通过命令行参数 --vision_base_url 等传入
     # =========================================================
-    PipelineQwenService_vision_base_url: Annotated[
-        str, "The base url for the vision model"
-    ] = "http://10.8.2.63:12345"
-
-    PipelineQwenService_vision_model_name: Annotated[
-        str, "The model name for the vision model"
-    ] = "qwen3-vl-8b-instruct"
+    VISION_BASE_URL: Annotated[str, "Base URL for the vision model"] = "http://10.8.2.63:12345"
+    VISION_MODEL_NAME: Annotated[str, "Vision model name"] = "qwen3-vl-8b-instruct"
+    VISION_API_KEY: Annotated[str, "API key for the vision model"] = "lm-studio"
 
     def get_vision_client(self) -> OpenAI:
         """获取视觉模型客户端"""
         return OpenAI(
-            base_url=self.PipelineQwenService_vision_base_url,
-            api_key=self.vision_api_key  # 默认直接使用父类的 API key
+            base_url=VISION_BASE_URL,
+            api_key=VISION_API_KEY  # 默认直接使用父类的 API key
         )
 
     def run_vision_model_locally(self, images: List[Image.Image]) -> str:
@@ -53,6 +49,8 @@ class PipelineQwenService(OpenAIService):
         """
         descriptions = []
         vision_client = self.get_vision_client()
+        logger.info(f"Vision Base URL: {self.VISION_BASE_URL}")
+        logger.info(f"Vision Model Name: {self.VISION_MODEL_NAME}")
         
         for idx, img in enumerate(images):
             try:
@@ -78,9 +76,9 @@ class PipelineQwenService(OpenAIService):
                 # 3. 调用本地视觉模型
                 logger.info(f"正在调用本地视觉模型处理第 {idx+1} 张图片...")
                 response = vision_client.chat.completions.create(
-                    model=self.vision_model_name,
+                    model=self.VISION_MODEL_NAME,
                     messages=vision_messages,
-                    max_tokens=2048,
+                    max_tokens=4096,
                     temperature=0.1,
                 )
                 
