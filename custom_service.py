@@ -32,15 +32,15 @@ class PipelineQwenService(OpenAIService):
     # 配置区域：按照 Marker 的方式定义为类属性
     # 这些属性可以通过命令行参数 --vision_base_url 等传入
     # =========================================================
-    VISION_BASE_URL: Annotated[str, "Base URL for the vision model"] = "http://10.8.2.63:12345"
+    VISION_BASE_URL: Annotated[str, "Base URL for the vision model"] = "http://10.8.2.63:12345/v1/"
     VISION_MODEL_NAME: Annotated[str, "Vision model name"] = "qwen3-vl-8b-instruct"
     VISION_API_KEY: Annotated[str, "API key for the vision model"] = "lm-studio"
 
     def get_vision_client(self) -> OpenAI:
         """获取视觉模型客户端"""
         return OpenAI(
-            base_url=VISION_BASE_URL,
-            api_key=VISION_API_KEY  # 默认直接使用父类的 API key
+            base_url=self.VISION_BASE_URL,
+            api_key=self.VISION_API_KEY  # 默认直接使用父类的 API key
         )
 
     def run_vision_model_locally(self, images: List[Image.Image]) -> str:
